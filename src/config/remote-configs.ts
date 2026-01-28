@@ -1,5 +1,32 @@
-// 远程配置选项
-export const REMOTE_CONFIGS = [
+/**
+ * 远程配置项接口
+ * Represents a single remote configuration option with a display label and a URL value.
+ */
+interface RemoteConfigOption {
+  /** 显示名称 (e.g., "No-Urltest") */
+  label: string;
+  /** 远程配置文件的 URL 地址 */
+  value: string;
+}
+
+/**
+ * 远程配置分组接口
+ * Represents a group of configuration options (e.g., "universal", "customized").
+ */
+interface RemoteConfigGroup {
+  /** 分组名称 */
+  label: string;
+  /** 该分组下的配置选项列表 */
+  options: RemoteConfigOption[];
+}
+
+/**
+ * 远程配置选项列表
+ * 包含了预定义的各类 Subconverter 远程配置文件链接
+ * 
+ * @see https://github.com/tindy2013/subconverter/tree/master/base/config
+ */
+export const REMOTE_CONFIGS: RemoteConfigGroup[] = [
   {
     label: "universal",
     options: [

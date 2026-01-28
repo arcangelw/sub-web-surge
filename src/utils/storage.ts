@@ -3,7 +3,12 @@
  * @param {string} itemKey - 存储键
  * @returns {string} 存储值
  */
-export const getLocalStorageItem = (itemKey) => {
+/**
+ * 获取本地存储项
+ * @param {string} itemKey - 存储键
+ * @returns {string} 存储值
+ */
+export const getLocalStorageItem = (itemKey: string): string => {
   const now = +new Date();
   let ls = localStorage.getItem(itemKey);
 
@@ -26,12 +31,12 @@ export const getLocalStorageItem = (itemKey) => {
  * @param {string} itemValue - 存储值
  * @param {number} ttl - 生存时间（秒）
  */
-export const setLocalStorageItem = (itemKey, itemValue, ttl) => {
+export const setLocalStorageItem = (itemKey: string, itemValue: string, ttl: number): void => {
   const now = +new Date();
 
   let data = {
     setTime: now,
-    ttl: parseInt(ttl),
+    ttl: parseInt(ttl.toString()),
     expire: now + ttl * 1000,
     value: itemValue
   };

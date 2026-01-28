@@ -1,3 +1,6 @@
+import type { SubscriptionForm, CustomParam } from '@/composables/useSubscriptionForm';
+
+
 /**
  * URL解析逻辑
  */
@@ -7,19 +10,19 @@ export function useUrlParser() {
    * @param {string} loadConfig - 待分析的URL
    * @returns {Promise<string>} 分析结果
    */
-  const analyzeUrl = async (loadConfig) => {
-    // Check if `loadConfig` includes "target"
+  const analyzeUrl = async (loadConfig: string): Promise<string> => {
+    // 检查 loadConfig 是否包含 "target"
     if (loadConfig.includes("target")) {
-      // If it does, return `loadConfig`
+      // 如果包含，直接返回
       return loadConfig;
     } else {
-      // Otherwise, fetch the data from `loadConfig` using GET method and follow redirects
+      // 否则，使用 GET 请求获取数据并跟随重定向
       try {
         let response = await fetch(loadConfig, {
           method: "GET",
           redirect: "follow",
         });
-        // Return the URL from the response
+        // 返回响应中的 URL
         return response.url;
       } catch (e) {
         throw new Error("解析短链接失败，请检查短链接服务端是否配置跨域：" + e);
@@ -30,55 +33,61 @@ export function useUrlParser() {
   /**
    * 确认并加载配置
    * @param {string} loadConfig - 待解析的配置URL
-   * @param {Object} form - 表单对象
-   * @param {Array} customParams - 自定义参数数组
+   * @param {SubscriptionForm} form - 表单对象
+   * @param {CustomParam[]} customParams - 自定义参数数组
    * @param {Function} onSuccess - 成功回调
    * @param {Function} onError - 错误回调
    * @returns {Promise<boolean>} 是否成功
    */
-  const parseUrl = async (loadConfig, form, customParams, onSuccess, onError) => {
-    // Check if 'loadConfig' is empty
+  const parseUrl = async (
+    loadConfig: string,
+    form: SubscriptionForm,
+    customParams: CustomParam[],
+    onSuccess: () => void,
+    onError: (msg: string) => void
+  ): Promise<boolean> => {
+    // 检查 loadConfig 是否为空
     if (loadConfig.trim() === "") {
       onError("订阅链接不能为空");
       return false;
     }
 
     try {
-      // Analyze the URL and extract its components
+      // 分析 URL 并提取组件
       const url = new URL(await analyzeUrl(loadConfig));
 
-      // Set the custom backend URL
+      // 设置自定义后端地址
       form.customBackend = url.origin + url.pathname + "?";
 
-      // Parse the URL parameters
+      // 解析 URL 参数
       const params = new URLSearchParams(url.search);
 
-      // Record parameters have been read
+      // 记录已读取的参数
       const getParam = params.get.bind(params);
-      const excludeParams = new Set();
-      params.get = key => {
+      const excludeParams = new Set<string>();
+      params.get = (key: string) => {
         excludeParams.add(key);
         return getParam(key);
       };
 
-      // Get the 'target' parameter
+      // 获取 'target' 参数
       const target = params.get("target");
 
-      // Set the client type based on the 'target' parameter
+      // 根据 'target' 参数设置客户端类型
       if (target === "surge") {
         const ver = params.get("ver") || "4";
         form.clientType = target + "&ver=" + ver;
       } else {
-        form.clientType = target;
+        form.clientType = target || "";
       }
 
-      // Set other form properties based on the URL parameters
-      form.sourceSubUrl = params.get("url").replace(/\|/g, "\n");
+      // 根据 URL 参数设置其他表单属性
+      form.sourceSubUrl = (params.get("url") || "").replace(/\|/g, "\n");
       form.insert = params.get("insert") === "true";
-      form.remoteConfig = params.get("config");
-      form.excludeRemarks = params.get("exclude");
-      form.includeRemarks = params.get("include");
-      form.filename = params.get("filename");
+      form.remoteConfig = params.get("config") || "";
+      form.excludeRemarks = params.get("exclude") || "";
+      form.includeRemarks = params.get("include") || "";
+      form.filename = params.get("filename") || "";
       form.appendType = params.get("append_type") === "true";
       form.emoji = params.get("emoji") === "true";
       form.nodeList = params.get("list") === "true";
@@ -88,17 +97,21 @@ export function useUrlParser() {
       form.sort = params.get("sort") === "true";
       form.udp = params.get("udp") === "true";
       form.expand = params.get("expand") === "true";
-      form.tpl.surge.doh = params.get("surge.doh") === "true";
-      form.tpl.clash.doh = params.get("clash.doh") === "true";
+      if (form.tpl.surge) {
+         form.tpl.surge.doh = params.get("surge.doh") === "true";
+      }
+      if (form.tpl.clash) {
+         form.tpl.clash.doh = params.get("clash.doh") === "true";
+      }
       form.new_name = params.get("new_name") === "true";
 
-      // Filter custom parameters
+      // 过滤自定义参数
       customParams.splice(0, customParams.length);
       Array.from(params
-        .entries()
+        .entries())
         .filter(e => !excludeParams.has(e[0]))
         .map(e => ({ name: e[0], value: e[1] }))
-      ).forEach(param => customParams.push(param));
+        .forEach(param => customParams.push(param));
 
       onSuccess();
       return true;

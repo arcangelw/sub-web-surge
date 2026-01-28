@@ -1,16 +1,29 @@
 import { CONSTANTS } from '@/config/constants';
 
+interface UploadResponse {
+  code: number;
+  msg: string;
+  data?: {
+    url?: string;
+  };
+}
+
+interface HandleUploadResult {
+  success: boolean;
+  url: string;
+}
+
 /**
  * 配置上传服务
  */
 export class ConfigUploadService {
   /**
    * 上传配置
-   * @param {Object} $axios - Axios实例
+   * @param {any} $axios - Axios实例
    * @param {string} content - 配置内容
-   * @returns {Promise<Object>} 上传结果
+   * @returns {Promise<UploadResponse>} 上传结果
    */
-  static async uploadConfig($axios, content) {
+  static async uploadConfig($axios: any, content: string): Promise<UploadResponse> {
     const body = {
       content: content,
     };
@@ -21,12 +34,12 @@ export class ConfigUploadService {
 
   /**
    * 处理上传成功响应
-   * @param {Object} res - 响应对象 (已经是response.data)
-   * @param {Function} $copyText - 复制文本函数
-   * @param {Function} $message - 消息提示函数
-   * @returns {Object} 处理结果
+   * @param {UploadResponse} res - 响应对象 (已经是response.data)
+   * @param {any} $copyText - 复制文本函数
+   * @param {any} $message - 消息提示函数
+   * @returns {HandleUploadResult} 处理结果
    */
-  static handleUploadSuccess(res, $copyText, $message) {
+  static handleUploadSuccess(res: UploadResponse, $copyText: any, $message: any): HandleUploadResult {
     // res 已经是 response.data，所以直接访问 res.code, res.msg, res.data.url
     if (res.code === 0 && res.data && res.data.url) {
       const configUrl = res.data.url;
@@ -46,9 +59,9 @@ export class ConfigUploadService {
 
   /**
    * 处理上传错误
-   * @param {Function} $message - 消息提示函数
+   * @param {any} $message - 消息提示函数
    */
-  static handleUploadError($message) {
+  static handleUploadError($message: any): void {
     $message.error("远程配置上传失败");
   }
 }

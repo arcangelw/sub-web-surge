@@ -3,7 +3,17 @@
  * @param {string} url - 订阅链接
  * @returns {Object} 验证结果
  */
-export const validateSubUrl = (url) => {
+export interface ValidationResult {
+  valid: boolean;
+  message?: string;
+}
+
+/**
+ * 验证订阅链接格式
+ * @param {string} url - 订阅链接
+ * @returns {ValidationResult} 验证结果
+ */
+export const validateSubUrl = (url: string): ValidationResult => {
   if (!url || url.trim() === "") {
     return { valid: false, message: "订阅链接不能为空" };
   }
@@ -22,10 +32,10 @@ export const validateSubUrl = (url) => {
 
 /**
  * 验证表单必填项
- * @param {Object} form - 表单数据
+ * @param {any} form - 表单数据 (使用 any 暂避循环依赖，后续可优化为 SubscriptionForm)
  * @returns {boolean} 验证结果
  */
-export const validateForm = (form) => {
+export const validateForm = (form: any): boolean => {
   if (form.sourceSubUrl === "" || form.clientType === "") {
     return false;
   }

@@ -1,9 +1,9 @@
 /**
  * 格式化错误消息
- * @param {Error|string} error - 错误对象或字符串
+ * @param {any} error - 错误对象或字符串
  * @returns {string} 格式化后的错误消息
  */
-export const formatErrorMessage = (error) => {
+export const formatErrorMessage = (error: any): string => {
   if (typeof error === 'string') {
     return error;
   }
@@ -21,7 +21,7 @@ export const formatErrorMessage = (error) => {
  * @param {string} version - 原始版本信息
  * @returns {string} 清理后的版本信息
  */
-export const formatVersion = (version) => {
+export const formatVersion = (version: string): string => {
   let cleaned = version.replace(/backend\n$/gm, "");
   cleaned = cleaned.replace("subconverter", "");
   return cleaned;
@@ -32,6 +32,6 @@ export const formatVersion = (version) => {
  * @param {string} url - 原始订阅链接
  * @returns {string} 处理后的订阅链接
  */
-export const processSubUrl = (url) => {
+export const processSubUrl = (url: string): string => {
   return url.replace(/(\n|\r|\n\r)/g, "|");
 };
